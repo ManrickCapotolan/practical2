@@ -1,24 +1,29 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useState } from 'react';
+import Filters from './components/Filters';
+import Results from './components/Results';
+import { getNews } from './services/newsApi';
 import './App.css';
 
 function App() {
+  const [articles, setArticles] = useState([]);
+
+  const onSubmit = async (data) => {
+    const { country, endpoint, search } = data;
+    const defaults = [{ key: 'q', value: search || '-' }];
+    const param = endpoint === 'everything'
+      ? defaults
+      : [ ...defaults, { key: 'country', value: country }];
+
+    const result = await getNews(`/${endpoint}`, param);
+    console.log(result.data);
+    setArticles(result.data.articles);
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className='app ui container'>
+      <h1 className='title'>Manrick's News App</h1>
+      <Filters onSubmit={onSubmit} />
+      <Results articles={articles} />
     </div>
   );
 }
